@@ -9,7 +9,7 @@ namespace jiecang_desk {
 
 static const char *const TAG = "jiecang_desk";
 
-static const uint8_t BYTE_RECV_HEADER = 0x2F;
+static const uint8_t BYTE_RECV_HEADER = 0xF2;
 static const uint8_t BYTE_EOM = 0x7E;
 
 static const int MAX_PARAMS_LENGTH = 4;
