@@ -69,7 +69,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   }
   buffer[pos++] = rx_data;
 
-  ESP_LOGD(TAG, "read byte 0x%02X", rx_data);
+  ESP_LOGD(TAG, "read byte 0x%02X (state = %d)", rx_data, state);
   
   switch (state)
   {
