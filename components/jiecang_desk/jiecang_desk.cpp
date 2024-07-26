@@ -139,9 +139,9 @@ bool JiecangDeskComponent::validate_packet_(const uint8_t *buffer, const int par
     sum += buffer[i];
   }
   
-  ESP_LOGD(TAG, "validating checksum: %d == %d", sum, buffer[5 + param_length]);
+  ESP_LOGD(TAG, "validating checksum: %d == %d", sum & 0xFF, buffer[4 + param_length]);
 
-  return (sum & 0xFF) == buffer[5 + param_length];
+  return (sum & 0xFF) == buffer[4 + param_length];
 }
 
 void JiecangDeskComponent::process_packet_(const uint8_t *buffer, const int packet_length) {
