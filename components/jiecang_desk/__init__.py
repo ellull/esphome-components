@@ -7,7 +7,7 @@ CODEOWNERS = ["@ellull"]
 
 CONF_JIECANG_DESK_ID = "jiecang_desk_id"
 
-jiecang_desk_ns = cg.exphome_ns.namespace("jiecang_desk")
+jiecang_desk_ns = cg.esphome_ns.namespace("jiecang_desk")
 
 JiecangDeskComponent = jiecang_desk_ns.class_("JiecangDeskComponent", cg.Component, uart.UARTDevice)
 
@@ -23,11 +23,11 @@ CONFIG_SCHEMA = cv.All(
             cv.GenerateID(): cv.declare_id(JiecangDeskComponent),
         }
     )
-    .extend(cv.COMPONENT_SCHEMA)
     .extend(uart.UART_DEVICE_SCHEMA)
+    .extend(cv.COMPONENT_SCHEMA)
 )
 FINAL_VALIDATE_SCHEMA = uart.final_validate_device_schema(
-    "gps",
+    "jiecang_desk",
     baud_rate=9600,
     require_tx=True,
     require_rx=True,
