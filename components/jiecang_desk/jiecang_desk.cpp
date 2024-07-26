@@ -86,8 +86,10 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
       return -1;
     }
 
-    ESP_LOGD(TAG, "read address");
-    state = PacketState::RECV_COMMAND;
+    if (pos == 2) {
+      ESP_LOGD(TAG, "read address");
+      state = PacketState::RECV_COMMAND;
+    }
     break;
   
   // Read the command
