@@ -122,7 +122,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   // Read the EOM (0x7E)
   case PacketState::RECV_EOM:
     int prev_pos = pos;
-    reset_state(null);
+    reset_state(nullptr);
     return rx_data == BYTE_EOM ? prev_pos : -1;
     break;
   }
