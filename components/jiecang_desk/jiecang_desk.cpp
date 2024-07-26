@@ -75,14 +75,9 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   {
   // Read the header (0xF2,0xF2)
   case PacketState::RECV_ADDRESS:
-    if (pos == 1 && buffer[0] != BYTE_RECV_HEADER)
+    if (rx_data != BYTE_RECV_HEADER)
     {
-      reset_state("wrong first address byte");
-      return -1;
-    }
-
-    if (pos == 2 && buffer[1] != BYTE_RECV_HEADER) {
-      reset_state("wrong second address byte");
+      reset_state("wrong address byte 0x%02X", rx_data);
       return -1;
     }
 
@@ -111,9 +106,10 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
 
   // Read the params
   case PacketState::RECV_PARAMS:
-    if (pos == 4 + param_length)
+    if (pos == 4 + param_length) {
       ESP_LOGD(TAG, "read params (%d, %d)", pos, 4 + param_length);
       state = PacketState::REVC_CHECKSUM;
+    }
     break;
   
   // Read and validate the checksum
