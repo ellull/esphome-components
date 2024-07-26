@@ -53,8 +53,12 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   static PacketState state = PacketState::RECV_ADDRESS;
   static int param_length = 0;
 
-  auto reset_state = [&](std::string msg) {
-    ESP_LOGW(TAG, "Reseting read packet state (%s): pos = %d, state = %d, param_lenth = %d, buffer = %s, buffer len = %d", msg.c_str(), pos, state, param_length, uint8_to_hex_string(buffer, len).c_str(), len);
+  auto reset_state = [&](const char* error) {
+#ifdef ESP_LOGE
+    if (error != null) {
+      ESP_LOGE(TAG, "Failed reading packet (%s): buffer = %s", error, uint8_to_hex_string(buffer, len).c_str());
+    }
+#endif
     pos = 0;
     state = PacketState::RECV_ADDRESS;
     param_length = 0;
@@ -69,8 +73,6 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   }
   buffer[pos++] = rx_data;
 
-  ESP_LOGD(TAG, "read byte 0x%02X (state = %d)", rx_data, state);
-  
   switch (state)
   {
   // Read the header (0xF2,0xF2)
@@ -82,14 +84,12 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
     }
 
     if (pos == 2) {
-      ESP_LOGD(TAG, "read address");
       state = PacketState::RECV_COMMAND;
     }
     break;
   
   // Read the command
   case PacketState::RECV_COMMAND:
-    ESP_LOGD(TAG, "read command 0x%02X", rx_data);
     state = PacketState::RECV_PARAMS_LENGTH;
     break;
 
@@ -100,21 +100,18 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
       reset_state("esceeded maximum params length");
       return -1;
     }
-    ESP_LOGD(TAG, "read params length %d", param_length);
     state = param_length > 0 ? PacketState::RECV_PARAMS : PacketState::REVC_CHECKSUM;
     break;
 
   // Read the params
   case PacketState::RECV_PARAMS:
     if (pos == 4 + param_length) {
-      ESP_LOGD(TAG, "read params (%d, %d)", pos, 4 + param_length);
       state = PacketState::REVC_CHECKSUM;
     }
     break;
   
   // Read and validate the checksum
   case PacketState::REVC_CHECKSUM:
-    ESP_LOGD(TAG, "read checksum 0x%02X", rx_data);
     if (!this->validate_packet_(buffer, param_length)) {
       reset_state("invalid checksum");
       return -1;
@@ -125,7 +122,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   // Read the EOM (0x7E)
   case PacketState::RECV_EOM:
     int prev_pos = pos;
-    reset_state("EOM");
+    reset_state(null);
     return rx_data == BYTE_EOM ? prev_pos : -1;
     break;
   }
@@ -138,9 +135,6 @@ bool JiecangDeskComponent::validate_packet_(const uint8_t *buffer, const int par
   for (size_t i = 2; i < 4 + param_length; i++) {
     sum += buffer[i];
   }
-  
-  ESP_LOGD(TAG, "validating checksum: %d == %d", sum & 0xFF, buffer[4 + param_length]);
-
   return (sum & 0xFF) == buffer[4 + param_length];
 }
 
