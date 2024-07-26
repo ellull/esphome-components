@@ -55,7 +55,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
 
   auto reset_state = [&](const char* error) {
 #ifdef ESP_LOGE
-    if (error != null) {
+    if (error != nullptr) {
       ESP_LOGE(TAG, "Failed reading packet (%s): buffer = %s", error, uint8_to_hex_string(buffer, len).c_str());
     }
 #endif
