@@ -54,7 +54,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   static int param_length = 0;
 
   auto reset_state = [&]() {
-    ESP_LOGW(TAG, "Reseting read packet state: pos = %d, state = %s, param_lenth = %d, buffer = %s, buffer len = %d", pos, state, param_length, uint8_to_hex_string(buffer, len), len);
+    ESP_LOGW(TAG, "Reseting read packet state: pos = %d, state = %s, param_lenth = %d, buffer = %s, buffer len = %d", pos, state, param_length, uint8_to_hex_string(buffer, len).c_str(), len);
     pos = 0;
     state = PacketState::RECV_ADDRESS;
     param_length = 0;
@@ -132,11 +132,11 @@ bool JiecangDeskComponent::validate_packet_(const uint8_t *buffer, const int par
     sum += buffer[i];
   }
   
-  return sum & 0xFF == buffer[4 + param_length];
+  return (sum & 0xFF) == buffer[4 + param_length];
 }
 
 void JiecangDeskComponent::process_packet_(const uint8_t *buffer, const int packet_length) {
-  ESP_LOGD(TAG, "Processing packet %s", uint8_to_hex_string(buffer, packet_length));
+  ESP_LOGD(TAG, "Processing packet %s", uint8_to_hex_string(buffer, packet_length).c_str());
 
   switch (buffer[POS_COMMAND])
   {
