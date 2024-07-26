@@ -53,8 +53,8 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   static PacketState state = PacketState::RECV_ADDRESS;
   static int param_length = 0;
 
-  auto reset_state = [&]() {
-    ESP_LOGW(TAG, "Reseting read packet state: pos = %d, state = %d, param_lenth = %d, buffer = %s, buffer len = %d", pos, state, param_length, uint8_to_hex_string(buffer, len).c_str(), len);
+  auto reset_state = [&](char *msg) {
+    ESP_LOGW(TAG, "Reseting read packet state (%s): pos = %d, state = %d, param_lenth = %d, buffer = %s, buffer len = %d", msg, pos, state, param_length, uint8_to_hex_string(buffer, len).c_str(), len);
     pos = 0;
     state = PacketState::RECV_ADDRESS;
     param_length = 0;
@@ -65,22 +65,24 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
     return -1;
 
   if (pos == len) {
-    reset_state();
+    reset_state("reached end of buffer");
   }
   buffer[pos++] = rx_data;
 
+  ESP_LOGD(TAG, "read byte 0x%02X", rx_data);
+  
   switch (state)
   {
   // Read the header (0xF2,0xF2)
   case PacketState::RECV_ADDRESS:
     if (pos == 1 && buffer[0] != BYTE_RECV_HEADER)
     {
-      reset_state();
+      reset_state("wrong first address byte");
       return -1;
     }
 
     if (pos == 2 && buffer[1] != BYTE_RECV_HEADER) {
-      reset_state();
+      reset_state("wrong second address byte");
       return -1;
     }
 
@@ -96,7 +98,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   case PacketState::RECV_PARAMS_LENGTH:
     param_length = rx_data;
     if (param_length > MAX_PARAMS_LENGTH) {
-      reset_state();
+      reset_state("esceeded maximum params length");
       return -1;
     }
     state = param_length > 0 ? PacketState::RECV_PARAMS : PacketState::REVC_CHECKSUM;
@@ -111,7 +113,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   // Read and validate the checksum
   case PacketState::REVC_CHECKSUM:
     if (!this->validate_packet_(buffer, param_length)) {
-      reset_state();
+      reset_state("invalid checksum");
       return -1;
     }
     state = PacketState::RECV_EOM;
@@ -120,7 +122,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   // Read the EOM (0x7E)
   case PacketState::RECV_EOM:
     int prev_pos = pos;
-    reset_state();
+    reset_state("EOM");
     return rx_data == BYTE_EOM ? prev_pos : -1;
     break;
   }
