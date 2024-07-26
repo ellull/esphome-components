@@ -86,12 +86,14 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
       return -1;
     }
 
+    ESP_LOGD(TAG, "read address");
     state = PacketState::RECV_COMMAND;
     break;
   
   // Read the command
   case PacketState::RECV_COMMAND:
-    state = PacketState::RECV_PARAMS_LENGTH;    
+    ESP_LOGD(TAG, "read command 0x%02X", rx_data);
+    state = PacketState::RECV_PARAMS_LENGTH;
     break;
 
   // Read the params length
@@ -101,17 +103,20 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
       reset_state("esceeded maximum params length");
       return -1;
     }
+    ESP_LOGD(TAG, "read params length %d", param_length);
     state = param_length > 0 ? PacketState::RECV_PARAMS : PacketState::REVC_CHECKSUM;
     break;
 
   // Read the params
   case PacketState::RECV_PARAMS:
     if (pos == 4 + param_length)
+      ESP_LOGD(TAG, "read params (%d, %d)", pos, 4 + param_length);
       state = PacketState::REVC_CHECKSUM;
     break;
   
   // Read and validate the checksum
   case PacketState::REVC_CHECKSUM:
+    ESP_LOGD(TAG, "read checksum 0x%02X", rx_data);
     if (!this->validate_packet_(buffer, param_length)) {
       reset_state("invalid checksum");
       return -1;
@@ -136,7 +141,9 @@ bool JiecangDeskComponent::validate_packet_(const uint8_t *buffer, const int par
     sum += buffer[i];
   }
   
-  return (sum & 0xFF) == buffer[4 + param_length];
+  ESP_LOGD(TAG, "validating checksum: %d == %d", sum, buffer[5 + param_length]);
+
+  return (sum & 0xFF) == buffer[5 + param_length];
 }
 
 void JiecangDeskComponent::process_packet_(const uint8_t *buffer, const int packet_length) {
