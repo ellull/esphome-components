@@ -54,7 +54,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   static int param_length = 0;
 
   auto reset_state = [&]() {
-    ESP_LOGW(TAG, "Reseting read packet state: pos = %d, state = %s, param_lenth = %d, buffer = %s, buffer len = %d", pos, state, param_length, uint8_to_hex_string(buffer, len).c_str(), len);
+    ESP_LOGW(TAG, "Reseting read packet state: pos = %d, state = %d, param_lenth = %d, buffer = %s, buffer len = %d", pos, state, param_length, uint8_to_hex_string(buffer, len).c_str(), len);
     pos = 0;
     state = PacketState::RECV_ADDRESS;
     param_length = 0;
@@ -115,12 +115,14 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
       return -1;
     }
     state = PacketState::RECV_EOM;
+    break;
 
   // Read the EOM (0x7E)
   case PacketState::RECV_EOM:
     int prev_pos = pos;
     reset_state();
     return rx_data == BYTE_EOM ? prev_pos : -1;
+    break;
   }
 
   return -1;
