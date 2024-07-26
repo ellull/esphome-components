@@ -77,8 +77,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   {
   // Read the header (0xF2,0xF2)
   case PacketState::RECV_ADDRESS:
-    if (rx_data != BYTE_RECV_HEADER)
-    {
+    if (rx_data != BYTE_RECV_HEADER) {
       reset_state("wrong address byte");
       return -1;
     }
@@ -148,7 +147,8 @@ void JiecangDeskComponent::process_packet_(const uint8_t *buffer, const int pack
     if (buffer[POS_PARAMS_LENGTH] != 3)  // Height command must have three params.
       return;
     if (this->height_sensor_ != nullptr)
-      this->height_sensor_->publish_state(buffer[4] << 8 | buffer[5]);
+      float height = (float)(buffer[4] << 8 | buffer[5]);
+      this->height_sensor_->publish_state(height / 10.0);
     break;
 #endif
   }
