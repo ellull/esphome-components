@@ -53,8 +53,8 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   static PacketState state = PacketState::RECV_ADDRESS;
   static int param_length = 0;
 
-  auto reset_state = [&](char *msg) {
-    ESP_LOGW(TAG, "Reseting read packet state (%s): pos = %d, state = %d, param_lenth = %d, buffer = %s, buffer len = %d", msg, pos, state, param_length, uint8_to_hex_string(buffer, len).c_str(), len);
+  auto reset_state = [&](std::string msg) {
+    ESP_LOGW(TAG, "Reseting read packet state (%s): pos = %d, state = %d, param_lenth = %d, buffer = %s, buffer len = %d", msg.c_str(), pos, state, param_length, uint8_to_hex_string(buffer, len).c_str(), len);
     pos = 0;
     state = PacketState::RECV_ADDRESS;
     param_length = 0;
