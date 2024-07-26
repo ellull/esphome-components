@@ -77,7 +77,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   case PacketState::RECV_ADDRESS:
     if (rx_data != BYTE_RECV_HEADER)
     {
-      reset_state("wrong address byte 0x%02X", rx_data);
+      reset_state("wrong address byte");
       return -1;
     }
 
