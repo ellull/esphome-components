@@ -142,6 +142,7 @@ void JiecangDeskComponent::process_packet_(const uint8_t *buffer, const int pack
 
   switch (buffer[POS_COMMAND])
   {
+#ifdef USE_SENSOR
   case COMMAND_HEIGHT:
     if (this->height_sensor_ == nullptr)
       return;
@@ -152,6 +153,7 @@ void JiecangDeskComponent::process_packet_(const uint8_t *buffer, const int pack
     float height = (float)(buffer[4] << 8 | buffer[5]);
     this->height_sensor_->publish_state(height / 10.0);
     break;
+#endif
   }
 }
 
