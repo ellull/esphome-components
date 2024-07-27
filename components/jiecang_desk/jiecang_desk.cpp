@@ -20,6 +20,9 @@ static const int POS_PARAMS_LENGTH = 3;
 static const int POS_PARAMS = 4;
 
 static const uint8_t RESPONSE_HEIGHT = 0x01;
+static const uint8_t RESPONSE_PHYSICAL_LIMITS = 0x07;
+static const uint8_t RESPONSE_MAX_LIMIT = 0x21;
+static const uint8_t RESPONSE_MIN_LIMIT = 0x22;
 
 std::string uint8_to_hex_string(const uint8_t *v, const int s) {
   std::stringstream ss;
@@ -39,7 +42,6 @@ void JiecangDeskComponent::dump_config() {
 }
 
 void JiecangDeskComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up Jiecang Desk sensor...");
   if (!this->height_listeners_.empty())
     this->send_command(COMMAND_SETTINGS);
 }
@@ -184,6 +186,39 @@ void JiecangDeskComponent::process_response_(const uint8_t response, const int p
     for (auto *listener : this->height_listeners_)
       listener->update_height(height);
     this->prev_height_ = height;
+    break;
+  }
+
+  case RESPONSE_PHYSICAL_LIMITS: {
+    if (params_len != 4)  // Physical limits response must have four params.
+      return;
+
+    int max = (params[0] << 8 | params[1]);
+    int min = (params[2] << 8 | params[3]);
+    for (auto *listener : this->limit_listeners_) {
+      listener->update_physical_max(max);
+      listener->update_physical_min(min);
+    }
+    break;
+  }
+
+  case RESPONSE_MAX_LIMIT: {
+    if (params_len != 2)  // Physical limits response must have four params.
+      return;
+
+    int max = (params[0] << 8 | params[1]);
+    for (auto *listener : this->limit_listeners_)
+      listener->update_configured_max(max);
+    break;
+  }
+
+  case RESPONSE_MIN_LIMIT: {
+    if (params_len != 2)  // Physical limits response must have four params.
+      return;
+
+    int min = (params[0] << 8 | params[1]);
+    for (auto *listener : this->limit_listeners_)
+      listener->update_configured_min(min);
     break;
   }
 

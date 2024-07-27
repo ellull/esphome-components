@@ -24,18 +24,28 @@ class JiecangDeskHeightListener {
   virtual void update_height(const int height) = 0;
 };
 
+class JiecangDeskLimitsListener {
+ public:
+  virtual void update_physical_max(const int height) = 0;
+  virtual void update_physical_min(const int height) = 0;
+  virtual void update_configured_max(const int height) = 0;
+  virtual void update_configured_min(const int height) = 0;
+};
+
 class JiecangDeskComponent : public Component, public uart::UARTDevice {
  public:
   void dump_config() override;
   void setup() override;
   void loop() override;
   void add_height_listener(JiecangDeskHeightListener *listener) { height_listeners_.push_back(listener); }
+  void add_limits_listener(JiecangDeskLimitsListener *listener) { limit_listeners_.push_back(listener); }
   void send_command(const uint8_t command, const int params_len, const uint8_t *params);
   void send_command(const uint8_t command);
 
  private:
   int prev_height_;
   std::vector<JiecangDeskHeightListener *> height_listeners_;
+  std::vector<JiecangDeskLimitsListener *> limit_listeners_;
 
   int read_packet_(uint8_t *buffer, const int len);
   void write_packet_(const uint8_t *buffer, const int len);
