@@ -25,4 +25,4 @@ async def to_code(config):
     await cover.register_cover(var, config)
 
     #cg.add(var.set_parent(parent))
-    cg.add(parent.set_cover(var))
+    cg.add(parent.add_height_listener(var))

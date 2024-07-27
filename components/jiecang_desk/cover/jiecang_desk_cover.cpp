@@ -22,5 +22,10 @@ cover::CoverTraits JiecangDeskCover::get_traits() {
 void JiecangDeskCover::control(const cover::CoverCall &call) {
 }
 
+void JiecangDeskCover::update_height(const int height) {
+  this->position = height / 2000.0;
+  this->publish_state(false);
+}
+
 }  // namespace jiecang_desk
 }  // namespace esphome

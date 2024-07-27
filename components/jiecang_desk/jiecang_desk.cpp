@@ -69,8 +69,7 @@ void JiecangDeskComponent::send_command(const uint8_t command, const int params_
   buffer[POS_PARAMS + params_len] = this->checksum_(&buffer[POS_COMMAND], params_len + 2);
   buffer[POS_PARAMS + params_len + 1] = BYTE_EOM;
   
-  ESP_LOGD(TAG, "Sending command %s", uint8_to_hex_string(buffer, POS_PARAMS + params_len + 2).c_str());
-  this -> write_array(buffer, 6 + params_len);
+  this->write_packet_(buffer, 6 + params_len);
 }
 
 void JiecangDeskComponent::send_command(const uint8_t command) {
@@ -159,6 +158,8 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
 }
 
 void JiecangDeskComponent::write_packet_(const uint8_t *buffer, const int len) {
+  ESP_LOGD(TAG, "Sending command %s", uint8_to_hex_string(buffer, len).c_str());
+  this->write_array(buffer, len);
 }
 
 uint8_t JiecangDeskComponent::checksum_(const uint8_t *buffer, const int len) {
@@ -173,17 +174,20 @@ void JiecangDeskComponent::process_response_(const uint8_t response, const int p
 
   switch (response)
   {
-  case RESPONSE_HEIGHT:
-#ifdef USE_SENSOR
-    if (this->height_sensor_ == nullptr)
-      return;
-        
+  case RESPONSE_HEIGHT: {
     if (params_len != 3)  // Height response must have three params.
       return;
 
-    this->height_sensor_->update_height((params[0] << 8 | params[1]));
-#endif
+    int height = (params[0] << 8 | params[1]);
+    if (this->prev_height_ == height)
+      return;
+
+    for (auto *listener : this->height_listeners_)
+      listener->update_height(height);
+    this->prev_height_ = height;
     break;
+  }
+  
   default:
     ESP_LOGD(TAG, "unknown response 0x%02X", response);
   }
