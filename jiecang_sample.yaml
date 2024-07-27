@@ -24,3 +24,14 @@ sensor:
   - platform: jiecang_desk
     name: Height
     unit_of_measurement: cm
+
+button:
+  - platform: jiecang_desk
+    position_1:
+      name: Position 1
+    position_2:
+      name: Position 2
+    position_3:
+      name: Position 3
+    position_4:
+      name: Position 4
