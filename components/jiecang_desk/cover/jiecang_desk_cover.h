@@ -9,6 +9,7 @@ namespace jiecang_desk {
 
 class JiecangDeskCover : public cover::Cover, public Component, public JiecangDeskHeightListener {
  public:
+  void dump_config() override;
   void setup() override;
   cover::CoverTraits get_traits() override;
   void update_height(const int height);

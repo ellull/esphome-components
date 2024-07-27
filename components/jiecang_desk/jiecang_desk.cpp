@@ -19,8 +19,6 @@ static const int POS_COMMAND = 2;
 static const int POS_PARAMS_LENGTH = 3;
 static const int POS_PARAMS = 4;
 
-static const uint8_t COMMAND_SETTINGS = 0x07;
-
 static const uint8_t RESPONSE_HEIGHT = 0x01;
 
 std::string uint8_to_hex_string(const uint8_t *v, const int s) {
@@ -42,7 +40,8 @@ void JiecangDeskComponent::dump_config() {
 
 void JiecangDeskComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Jiecang Desk sensor...");
-  this->send_command(COMMAND_SETTINGS);
+  if (!this->height_listeners_.empty())
+    this->send_command(COMMAND_SETTINGS);
 }
 
 void JiecangDeskComponent::loop() {
@@ -187,7 +186,7 @@ void JiecangDeskComponent::process_response_(const uint8_t response, const int p
     this->prev_height_ = height;
     break;
   }
-  
+
   default:
     ESP_LOGD(TAG, "unknown response 0x%02X", response);
   }

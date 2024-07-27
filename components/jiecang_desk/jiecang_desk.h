@@ -15,6 +15,10 @@ enum PacketState {
   RECV_EOM,
 };
 
+static const uint8_t COMMAND_SETTINGS = 0x07;
+static const uint8_t COMMAND_PHYSICAL_LIMITS = 0x0C;
+static const uint8_t COMMAND_LIMITS = 0x20;
+
 class JiecangDeskHeightListener {
  public:
   virtual void update_height(const int height) = 0;

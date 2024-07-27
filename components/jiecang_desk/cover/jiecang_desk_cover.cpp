@@ -5,9 +5,11 @@ namespace jiecang_desk {
 
 static const char *const TAG = "jiecang_desk.cover";
 
-//void JiecangDeskHeightSensor::dump_config() { LOG_SENSOR("  ", "Jiecang Desk Cover", this); }
+void JiecangDeskCover::dump_config() { LOG_COVER("  ", "Jiecang Desk Cover", this); }
 
 void JiecangDeskCover::setup() {
+  this->parent_->send_command(COMMAND_PHYSICAL_LIMITS);
+  this->parent_->send_command(COMMAND_LIMITS);
 }
 
 cover::CoverTraits JiecangDeskCover::get_traits() {
