@@ -52,7 +52,7 @@ void JiecangDeskComponent::loop() {
   while (this->available()) {
     packet_len = this->read_packet_(buffer, sizeof(buffer));
     if (packet_len > 0) {
-      ESP_LOGD(TAG, "Processing packet %s", uint8_to_hex_string(buffer, packet_len).c_str());
+      ESP_LOGD(TAG, "Processing response %s", uint8_to_hex_string(buffer, packet_len).c_str());
       this->process_response_(buffer[POS_COMMAND], buffer[POS_PARAMS_LENGTH], &buffer[POS_PARAMS]);
     }
   }
@@ -181,6 +181,7 @@ void JiecangDeskComponent::send_command_(const uint8_t command, const int params
   buffer[POS_PARAMS + params_len] = this->checksum_(&buffer[POS_COMMAND], params_len + 2);
   buffer[POS_PARAMS + params_len + 1] = BYTE_EOM;
   
+  ESP_LOGD(TAG, "Sending command %s", uint8_to_hex_string(buffer, POS_PARAMS + params_len + 1).c_str());
   this -> write_array(buffer, 6 + params_len);
 }
 
