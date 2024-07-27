@@ -24,5 +24,5 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cover.register_cover(var, config)
 
-    #cg.add(var.set_parent(parent))
+    cg.add(var.set_parent(parent))
     cg.add(parent.add_height_listener(var))
