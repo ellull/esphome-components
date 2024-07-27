@@ -40,8 +40,9 @@ class JiecangDeskComponent : public Component, public uart::UARTDevice {
 
    uint8_t checksum_(const uint8_t *buffer, const int len);
 
-   void process_command_(const uint8_t command, const int params_len, const uint8_t *params);
+   void process_response_(const uint8_t response, const int params_len, const uint8_t *params);
    void send_command_(const uint8_t command, const int params_len, const uint8_t *params);
+   void send_command_(const uint8_t command);
 };
 
 }  // namespace jiecang_desk
