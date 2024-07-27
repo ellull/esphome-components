@@ -16,6 +16,7 @@ static const int MAX_PARAMS_LENGTH = 4;
 
 static const int POS_COMMAND = 2;
 static const int POS_PARAMS_LENGTH = 3;
+static const int POS_PARAMS = 4;
 
 static const uint8_t COMMAND_HEIGHT = 0x01;
 
@@ -31,39 +32,44 @@ std::string uint8_to_hex_string(const uint8_t *v, const int s) {
   return ss.str();
 }
 
+void JiecangDeskComponent::dump_config() {
+  ESP_LOGCONFIG(TAG, "Jiecang Desk component:");
+  this->check_uart_settings(9600, 1, esphome::uart::UART_CONFIG_PARITY_NONE, 8);
+}
+
 void JiecangDeskComponent::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Jiecang Desk sensor...");
 }
 
 void JiecangDeskComponent::loop() {
-  if (!this->available())
-    return;
-
   static uint8_t buffer[16];
   static int packet_len;
+
   while (this->available()) {
     packet_len = this->read_packet_(buffer, sizeof(buffer));
-    if (packet_len >= 0)
-      this->process_packet_(buffer, packet_len);
+    if (packet_len > 0) {
+      ESP_LOGD(TAG, "Processing packet %s", uint8_to_hex_string(buffer, packet_len).c_str());
+      this->process_command_(buffer[POS_COMMAND], buffer[POS_PARAMS_LENGTH], &buffer[POS_PARAMS]);
+    }
   }
 }
 
 int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   static int pos = 0;
   static PacketState state = PacketState::RECV_ADDRESS;
-  static int param_length = 0;
+  static int params_length = 0;
 
   auto reset_state = [&](const char* error) {
-#ifdef ESP_LOGE
     if (error != nullptr) {
       ESP_LOGE(TAG, "Failed reading packet (%s): buffer = %s", error, uint8_to_hex_string(buffer, len).c_str());
     }
-#endif
+
     pos = 0;
     state = PacketState::RECV_ADDRESS;
-    param_length = 0;
+    params_length = 0;
   };
 
+  // Read next byte and add it to the buffer.
   static uint8_t rx_data;
   if (!this->read_byte(&rx_data))
     return -1;
@@ -82,7 +88,7 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
       return -1;
     }
 
-    if (pos == 2) {
+    if (pos == POS_COMMAND) {
       state = PacketState::RECV_COMMAND;
     }
     break;
@@ -94,24 +100,24 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
 
   // Read the params length
   case PacketState::RECV_PARAMS_LENGTH:
-    param_length = rx_data;
-    if (param_length > MAX_PARAMS_LENGTH) {
-      reset_state("esceeded maximum params length");
+    params_length = rx_data;
+    if (params_length > MAX_PARAMS_LENGTH) {
+      reset_state("invalid params length");
       return -1;
     }
-    state = param_length > 0 ? PacketState::RECV_PARAMS : PacketState::REVC_CHECKSUM;
+    state = params_length > 0 ? PacketState::RECV_PARAMS : PacketState::REVC_CHECKSUM;
     break;
 
   // Read the params
   case PacketState::RECV_PARAMS:
-    if (pos == 4 + param_length) {
+    if (pos == POS_PARAMS + params_length) {
       state = PacketState::REVC_CHECKSUM;
     }
     break;
   
   // Read and validate the checksum
   case PacketState::REVC_CHECKSUM:
-    if (!this->validate_packet_(buffer, param_length)) {
+    if (this->checksum_(&buffer[POS_COMMAND], params_length + 2) != rx_data) {
       reset_state("invalid checksum");
       return -1;
     }
@@ -129,37 +135,36 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
   return -1;
 }
 
-bool JiecangDeskComponent::validate_packet_(const uint8_t *buffer, const int param_length) {
-  int sum = 0;
-  for (size_t i = 2; i < 4 + param_length; i++) {
-    sum += buffer[i];
-  }
-  return (sum & 0xFF) == buffer[4 + param_length];
+void JiecangDeskComponent::write_packet_(const uint8_t *buffer, const int len) {
 }
 
-void JiecangDeskComponent::process_packet_(const uint8_t *buffer, const int packet_length) {
-  ESP_LOGD(TAG, "Processing packet %s", uint8_to_hex_string(buffer, packet_length).c_str());
+uint8_t JiecangDeskComponent::checksum_(const uint8_t *buffer, const int len) {
+  uint8_t sum = 0;
+  for (int i = 0; i < len; i++) {
+    sum += buffer[i];
+  }
+  return sum;
+}
 
-  switch (buffer[POS_COMMAND])
+void JiecangDeskComponent::process_command_(const uint8_t command, const int params_len, const uint8_t *params) {
+
+  switch (command)
   {
 #ifdef USE_SENSOR
   case COMMAND_HEIGHT:
     if (this->height_sensor_ == nullptr)
       return;
         
-    if (buffer[POS_PARAMS_LENGTH] != 3)  // Height command must have three params.
+    if (params_len != 3)  // Height command must have three params.
       return;
 
-    float height = (float)(buffer[4] << 8 | buffer[5]);
-    this->height_sensor_->publish_state(height / 10.0);
+    this->height_sensor_->update_height((params[0] << 8 | params[1]));
     break;
 #endif
   }
 }
 
-void JiecangDeskComponent::dump_config() {
-  ESP_LOGCONFIG(TAG, "Jiecang Desk component:");
-  this->check_uart_settings(9600, 1, esphome::uart::UART_CONFIG_PARITY_NONE, 8);
+void JiecangDeskComponent::send_command_(const uint8_t command, const int params_len, const uint8_t *params) {
 }
 
 }  // namespace jiecang_desk

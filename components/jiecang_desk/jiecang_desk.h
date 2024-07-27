@@ -27,18 +27,21 @@ class JiecangDeskComponent : public Component, public uart::UARTDevice {
   void loop() override;
 
 #ifdef USE_SENSOR
+ public:
   void set_height_sensor(JiecangDeskHeightSensor *height_sensor) { height_sensor_ = height_sensor; }
-#endif
 
  protected:
-#ifdef USE_SENSOR
   JiecangDeskHeightSensor *height_sensor_{nullptr};
 #endif
 
  private:
    int read_packet_(uint8_t *buffer, const int len);
-   bool validate_packet_(const uint8_t *buffer, const int param_length);
-   void process_packet_(const uint8_t *buffer, const int packet_length);
+   void write_packet_(const uint8_t *buffer, const int len);
+
+   uint8_t checksum_(const uint8_t *buffer, const int len);
+
+   void process_command_(const uint8_t command, const int params_len, const uint8_t *params);
+   void send_command_(const uint8_t command, const int params_len, const uint8_t *params);
 };
 
 }  // namespace jiecang_desk
