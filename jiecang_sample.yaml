@@ -1,0 +1,26 @@
+esphome:
+  name: jievanc-sample
+
+esp32:
+  board: esp32dev
+    
+logger:
+
+external_components:
+  - source: components
+    components: [ jiecang_desk ]
+
+uart:
+  - baud_rate: 9600
+    data_bits: 8
+    parity: NONE
+    stop_bits: 1
+    tx_pin: 18
+    rx_pin: 19
+
+jiecang_desk:
+
+sensor:
+  - platform: jiecang_desk
+    name: Height
+    unit_of_measurement: cm
