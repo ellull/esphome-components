@@ -5,6 +5,9 @@
 #ifdef USE_SENSOR
 #include "sensor/jiecang_desk_sensor.h"
 #endif
+#ifdef USE_COVER
+#include "cover/jiecang_desk_cover.h"
+#endif
 
 namespace esphome {
 namespace jiecang_desk {
@@ -33,6 +36,15 @@ class JiecangDeskComponent : public Component, public uart::UARTDevice {
  protected:
   JiecangDeskHeightSensor *height_sensor_{nullptr};
 #endif
+
+#ifdef USE_COVER
+ public:
+  void set_cover(JiecangDeskCover *cover) { cover_ = cover; }
+
+ protected:
+  JiecangDeskCover *cover_{nullptr};
+#endif
+
 
  private:
    int read_packet_(uint8_t *buffer, const int len);

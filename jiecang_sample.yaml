@@ -35,3 +35,7 @@ button:
       name: Position 3
     position_4:
       name: Position 4
+
+cover:
+  - platform: jiecang_desk
+    name: None

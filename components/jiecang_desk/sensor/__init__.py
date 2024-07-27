@@ -16,14 +16,14 @@ DEPENDENCIES = ["jiecang_desk"]
 JiecangDeskHeightSensor = jiecang_desk_ns.class_("JiecangDeskHeightSensor", sensor.Sensor, cg.Component)
 
 CONFIG_SCHEMA = (
-    sensor.sensor_schema(
+    JIECANG_DESK_COMPONENT_SCHEMA
+    .extend(sensor.sensor_schema(
         JiecangDeskHeightSensor,
         icon="mdi:desk",
         accuracy_decimals=1,
         device_class=DEVICE_CLASS_DISTANCE,
         state_class=STATE_CLASS_MEASUREMENT,
-    )
-    .extend(JIECANG_DESK_COMPONENT_SCHEMA)
+    ))
     .extend(cv.COMPONENT_SCHEMA)
 )
 
