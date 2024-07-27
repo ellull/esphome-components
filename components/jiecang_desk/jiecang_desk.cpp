@@ -69,7 +69,7 @@ void JiecangDeskComponent::send_command(const uint8_t command, const int params_
   buffer[POS_PARAMS + params_len] = this->checksum_(&buffer[POS_COMMAND], params_len + 2);
   buffer[POS_PARAMS + params_len + 1] = BYTE_EOM;
   
-  ESP_LOGD(TAG, "Sending command %s", uint8_to_hex_string(buffer, POS_PARAMS + params_len + 1).c_str());
+  ESP_LOGD(TAG, "Sending command %s", uint8_to_hex_string(buffer, POS_PARAMS + params_len + 2).c_str());
   this -> write_array(buffer, 6 + params_len);
 }
 
