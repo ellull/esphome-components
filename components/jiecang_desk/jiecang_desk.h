@@ -21,10 +21,10 @@ enum PacketState {
 class JiecangDeskComponent : public Component, public uart::UARTDevice {
  public:
   void dump_config() override;
-
   void setup() override;
-
   void loop() override;
+  void send_command(const uint8_t command, const int params_len, const uint8_t *params);
+  void send_command(const uint8_t command);
 
 #ifdef USE_SENSOR
  public:
@@ -37,12 +37,8 @@ class JiecangDeskComponent : public Component, public uart::UARTDevice {
  private:
    int read_packet_(uint8_t *buffer, const int len);
    void write_packet_(const uint8_t *buffer, const int len);
-
    uint8_t checksum_(const uint8_t *buffer, const int len);
-
    void process_response_(const uint8_t response, const int params_len, const uint8_t *params);
-   void send_command_(const uint8_t command, const int params_len, const uint8_t *params);
-   void send_command_(const uint8_t command);
 };
 
 }  // namespace jiecang_desk

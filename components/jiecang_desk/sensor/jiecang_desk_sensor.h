@@ -6,7 +6,7 @@
 namespace esphome {
 namespace jiecang_desk {
 
-class JiecangDeskHeightSensor : public Component, public sensor::Sensor {
+class JiecangDeskHeightSensor : public sensor::Sensor, public Component {
  public:
    void dump_config() override;
    void update_height(const int height);

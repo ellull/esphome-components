@@ -1,13 +1,11 @@
-#include "esphome/core/component.h"
-#include "esphome/components/sensor/sensor.h"
 #include "jiecang_desk_sensor.h"
 
 namespace esphome {
 namespace jiecang_desk {
 
-static const char *const TAG = "jiecang_desk";
+static const char *const TAG = "jiecang_desk.sensor";
 
-void JiecangDeskHeightSensor::dump_config() { LOG_SENSOR("  ", "height_sensor", this); }
+void JiecangDeskHeightSensor::dump_config() { LOG_SENSOR("  ", "Jiecang Desk Sensor", this); }
 
 void JiecangDeskHeightSensor::update_height(const int height) {
     static int prev_height = 0;
