@@ -42,8 +42,14 @@ void JiecangDeskComponent::dump_config() {
 }
 
 void JiecangDeskComponent::setup() {
-  if (!this->height_listeners_.empty())
+  if (!this->height_listeners_.empty()) {
     this->send_command(COMMAND_SETTINGS);
+  }
+
+  if (!this->limit_listeners_.empty()) {
+    this->send_command(COMMAND_PHYSICAL_LIMITS);
+    this->send_command(COMMAND_LIMITS);
+  }
 }
 
 void JiecangDeskComponent::loop() {
@@ -59,23 +65,13 @@ void JiecangDeskComponent::loop() {
   }
 }
 
-void JiecangDeskComponent::send_command(const uint8_t command, const int params_len, const uint8_t *params) {
-  static u_int8_t buffer[8] = { BYTE_SEND_ADRESS, BYTE_SEND_ADRESS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
-  buffer[POS_COMMAND] = command;
-  buffer[POS_PARAMS_LENGTH] = params_len;
-  for (int i = 0; i < params_len; i++) {
-    buffer[POS_PARAMS + i] = params[i];
-  }
-  buffer[POS_PARAMS + params_len] = this->checksum_(&buffer[POS_COMMAND], params_len + 2);
-  buffer[POS_PARAMS + params_len + 1] = BYTE_EOM;
-  
-  this->write_packet_(buffer, 6 + params_len);
+void JiecangDeskComponent::send_command(const uint8_t command) {
+  this->send_command_(command, 0, {});
 }
 
-void JiecangDeskComponent::send_command(const uint8_t command) {
-  ESP_LOGD(TAG, "Sending command 0x%02X", command);
-  this->send_command(command, 0, {});
+void JiecangDeskComponent::move_to(const int height) {
+    uint8_t bytes[2] = { (uint8_t)(height >> 8), (uint8_t)(height & 0xFF) };
+    this->send_command_(COMMAND_SET_HEIGHT, sizeof(bytes), bytes);
 }
 
 int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
@@ -218,6 +214,20 @@ void JiecangDeskComponent::process_response_(const uint8_t response, const int p
   default:
     ESP_LOGD(TAG, "unknown response 0x%02X", response);
   }
+}
+
+void JiecangDeskComponent::send_command_(const uint8_t command, const int params_len, const uint8_t *params) {
+  static u_int8_t buffer[8] = { BYTE_SEND_ADRESS, BYTE_SEND_ADRESS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+  buffer[POS_COMMAND] = command;
+  buffer[POS_PARAMS_LENGTH] = params_len;
+  for (int i = 0; i < params_len; i++) {
+    buffer[POS_PARAMS + i] = params[i];
+  }
+  buffer[POS_PARAMS + params_len] = this->checksum_(&buffer[POS_COMMAND], params_len + 2);
+  buffer[POS_PARAMS + params_len + 1] = BYTE_EOM;
+  
+  this->write_packet_(buffer, 6 + params_len);
 }
 
 }  // namespace jiecang_desk
