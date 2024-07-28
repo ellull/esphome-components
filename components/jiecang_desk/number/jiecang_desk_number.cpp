@@ -26,6 +26,8 @@ void JiecangDeskNumber::control(const float value) {
 }
 
 void JiecangDeskNumber::update_state() {
+  ESP_LOGD(TAG, "update_state");
+
   optional<int> max = this->get_limit_max();
   if (max.has_value())
     this->traits.set_max_value(*max * 0.1F);
@@ -35,6 +37,7 @@ void JiecangDeskNumber::update_state() {
     this->traits.set_min_value(*min * 0.1F);
 
   float new_state = this->height_ * 0.1F;
+  ESP_LOGD(TAG, "curr state = %f, new state = %f", this->state, new_state);
   if (this->state != new_state)
     this->publish_state(new_state);
 }
