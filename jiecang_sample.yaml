@@ -46,3 +46,8 @@ button:
 cover:
   - platform: jiecang_desk
     name: Cover
+
+number:
+  - platform: jiecang_desk
+    name: Number
+    unit_of_measurement: cm
