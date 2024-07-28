@@ -19,9 +19,10 @@ static const int POS_COMMAND = 2;
 static const int POS_PARAMS_LENGTH = 3;
 static const int POS_PARAMS = 4;
 
-static const uint8_t COMMAND_SETTINGS = 0x07;
-
 static const uint8_t RESPONSE_HEIGHT = 0x01;
+static const uint8_t RESPONSE_PHYSICAL_LIMITS = 0x07;
+static const uint8_t RESPONSE_MAX_LIMIT = 0x21;
+static const uint8_t RESPONSE_MIN_LIMIT = 0x22;
 
 std::string uint8_to_hex_string(const uint8_t *v, const int s) {
   std::stringstream ss;
@@ -41,8 +42,8 @@ void JiecangDeskComponent::dump_config() {
 }
 
 void JiecangDeskComponent::setup() {
-  ESP_LOGCONFIG(TAG, "Setting up Jiecang Desk sensor...");
-  this->send_command(COMMAND_SETTINGS);
+  if (!this->height_listeners_.empty())
+    this->send_command(COMMAND_SETTINGS);
 }
 
 void JiecangDeskComponent::loop() {
@@ -69,11 +70,11 @@ void JiecangDeskComponent::send_command(const uint8_t command, const int params_
   buffer[POS_PARAMS + params_len] = this->checksum_(&buffer[POS_COMMAND], params_len + 2);
   buffer[POS_PARAMS + params_len + 1] = BYTE_EOM;
   
-  ESP_LOGD(TAG, "Sending command %s", uint8_to_hex_string(buffer, POS_PARAMS + params_len + 2).c_str());
-  this -> write_array(buffer, 6 + params_len);
+  this->write_packet_(buffer, 6 + params_len);
 }
 
 void JiecangDeskComponent::send_command(const uint8_t command) {
+  ESP_LOGD(TAG, "Sending command 0x%02X", command);
   this->send_command(command, 0, {});
 }
 
@@ -159,6 +160,8 @@ int JiecangDeskComponent::read_packet_(uint8_t *buffer, const int len) {
 }
 
 void JiecangDeskComponent::write_packet_(const uint8_t *buffer, const int len) {
+  ESP_LOGD(TAG, "Sending command %s", uint8_to_hex_string(buffer, len).c_str());
+  this->write_array(buffer, len);
 }
 
 uint8_t JiecangDeskComponent::checksum_(const uint8_t *buffer, const int len) {
@@ -170,20 +173,48 @@ uint8_t JiecangDeskComponent::checksum_(const uint8_t *buffer, const int len) {
 }
 
 void JiecangDeskComponent::process_response_(const uint8_t response, const int params_len, const uint8_t *params) {
-
   switch (response)
   {
-  case RESPONSE_HEIGHT:
-#ifdef USE_SENSOR
-    if (this->height_sensor_ == nullptr)
-      return;
-        
+  case RESPONSE_HEIGHT: {
     if (params_len != 3)  // Height response must have three params.
       return;
 
-    this->height_sensor_->update_height((params[0] << 8 | params[1]));
-#endif
+    int height = (params[0] << 8 | params[1]);
+    for (auto *listener : this->height_listeners_)
+      listener->set_height(height);
+    this->prev_height_ = height;
     break;
+  }
+
+  case RESPONSE_PHYSICAL_LIMITS: {
+    if (params_len != 4)  // Physical limits response must have four params.
+      return;
+
+    for (auto *listener : this->limit_listeners_)
+      listener->set_physical_limits(params[0] << 8 | params[1], params[2] << 8 | params[3]);
+    break;
+  }
+
+  case RESPONSE_MAX_LIMIT: {
+    if (params_len != 2)  // Physical limits response must have four params.
+      return;
+
+    int max = (params[0] << 8 | params[1]);
+    for (auto *listener : this->limit_listeners_)
+      listener->set_configured_max(max);
+    break;
+  }
+
+  case RESPONSE_MIN_LIMIT: {
+    if (params_len != 2)  // Physical limits response must have four params.
+      return;
+
+    int min = (params[0] << 8 | params[1]);
+    for (auto *listener : this->limit_listeners_)
+      listener->set_configured_min(min);
+    break;
+  }
+
   default:
     ESP_LOGD(TAG, "unknown response 0x%02X", response);
   }

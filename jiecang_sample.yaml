@@ -1,10 +1,17 @@
 esphome:
-  name: jievanc-sample
+  friendly_name: Jiecang Desk
+  name: jiecang-desk
 
 esp32:
   board: esp32dev
     
 logger:
+
+#wifi:
+#  ssid: wifi_ssid
+#  password: wifi_password
+#
+#api:
 
 external_components:
   - source: components
@@ -35,3 +42,7 @@ button:
       name: Position 3
     position_4:
       name: Position 4
+
+cover:
+  - platform: jiecang_desk
+    name: Cover
