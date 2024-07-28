@@ -22,19 +22,21 @@ void JiecangDeskNumber::dump_config() {
 }
 
 void JiecangDeskNumber::control(const float value) {
-  this->parent_->move_to(value * 10);
+  //this->parent_->move_to(value * 10);
 }
 
 void JiecangDeskNumber::update_state() {
   optional<int> max = this->get_limit_max();
   if (max.has_value())
-    this->traits.set_max_value(*max * 0.1);
+    this->traits.set_max_value(*max * 0.1F);
 
   optional<int> min = this->get_limit_min();
   if (min.has_value())
-    this->traits.set_min_value(*min * 0.1);
+    this->traits.set_min_value(*min * 0.1F);
 
-  this->publish_state(this->height_ * 0.1);
+  float new_state = this->height_ * 0.1F;
+  if (this->state != new_state)
+    this->publish_state(new_state);
 }
 
 }  // namespace jiecang_desk

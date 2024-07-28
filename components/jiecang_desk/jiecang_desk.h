@@ -23,7 +23,7 @@ static const uint8_t COMMAND_STOP = 0x2B;
 
 class JiecangDeskHeightListener {
  public:
-  void set_height(const int value) { this->height_ = value; this->update_state(); };
+  virtual void set_height(const int value) { this->height_ = value; this->update_state(); };
 
  protected:
   int height_;
@@ -33,9 +33,9 @@ class JiecangDeskHeightListener {
 
 class JiecangDeskLimitsListener {
  public:
-  void set_physical_limits(const int max, const int min) { this->physical_max_ = max; this->physical_min_ = min; this->update_state(); }
-  void set_configured_max(const int value) { this->configured_max_ = value; this->update_state(); }
-  void set_configured_min(const int value) { this->configured_min_ = value; this->update_state(); }
+  virtual void set_physical_limits(const int max, const int min) { this->physical_max_ = max; this->physical_min_ = min; this->update_state(); }
+  virtual void set_configured_max(const int value) { this->configured_max_ = value; this->update_state(); }
+  virtual void set_configured_min(const int value) { this->configured_min_ = value; this->update_state(); }
 
  protected:
   optional<int> physical_max_;

@@ -12,6 +12,7 @@ class JiecangDeskCover : public cover::Cover, public Component, public JiecangDe
   void dump_config() override;
   void setup() override;
   cover::CoverTraits get_traits() override;
+  
   void set_parent(JiecangDeskComponent *parent) { this->parent_ = parent; }
    
  protected:
