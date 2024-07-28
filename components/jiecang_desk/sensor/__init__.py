@@ -4,6 +4,7 @@ from esphome.components import sensor
 from esphome.const import (
     DEVICE_CLASS_DISTANCE,
     STATE_CLASS_MEASUREMENT,
+    ICON_ARROW_EXPAND_VERTICAL,
 )
 from .. import (
     JIECANG_DESK_COMPONENT_SCHEMA,
@@ -17,13 +18,15 @@ JiecangDeskHeightSensor = jiecang_desk_ns.class_("JiecangDeskHeightSensor", sens
 
 CONFIG_SCHEMA = (
     JIECANG_DESK_COMPONENT_SCHEMA
-    .extend(sensor.sensor_schema(
-        JiecangDeskHeightSensor,
-        icon="mdi:desk",
-        accuracy_decimals=1,
-        device_class=DEVICE_CLASS_DISTANCE,
-        state_class=STATE_CLASS_MEASUREMENT,
-    ))
+    .extend(
+        sensor.sensor_schema(
+            JiecangDeskHeightSensor,
+            icon=ICON_ARROW_EXPAND_VERTICAL,
+            accuracy_decimals=1,
+            device_class=DEVICE_CLASS_DISTANCE,
+            state_class=STATE_CLASS_MEASUREMENT,
+        )
+    )
     .extend(cv.COMPONENT_SCHEMA)
 )
 

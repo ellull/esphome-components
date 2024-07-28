@@ -17,19 +17,20 @@ enum PacketState {
 
 static const uint8_t COMMAND_SETTINGS = 0x07;
 static const uint8_t COMMAND_PHYSICAL_LIMITS = 0x0C;
+static const uint8_t COMMAND_SET_HEIGHT = 0x1B;
 static const uint8_t COMMAND_LIMITS = 0x20;
+static const uint8_t COMMAND_STOP = 0x2B;
 
 class JiecangDeskHeightListener {
  public:
-  virtual void update_height(const int height) = 0;
+  virtual void set_height(const int value) = 0;
 };
 
 class JiecangDeskLimitsListener {
  public:
-  virtual void update_physical_max(const int height) = 0;
-  virtual void update_physical_min(const int height) = 0;
-  virtual void update_configured_max(const int height) = 0;
-  virtual void update_configured_min(const int height) = 0;
+  virtual void set_physical_limits(const int max, const int min) = 0;
+  virtual void set_configured_max(const int value) = 0;
+  virtual void set_configured_min(const int value) = 0;
 };
 
 class JiecangDeskComponent : public Component, public uart::UARTDevice {

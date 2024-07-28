@@ -74,6 +74,7 @@ void JiecangDeskComponent::send_command(const uint8_t command, const int params_
 }
 
 void JiecangDeskComponent::send_command(const uint8_t command) {
+  ESP_LOGD(TAG, "Sending command 0x%02X", command);
   this->send_command(command, 0, {});
 }
 
@@ -172,7 +173,6 @@ uint8_t JiecangDeskComponent::checksum_(const uint8_t *buffer, const int len) {
 }
 
 void JiecangDeskComponent::process_response_(const uint8_t response, const int params_len, const uint8_t *params) {
-
   switch (response)
   {
   case RESPONSE_HEIGHT: {
@@ -180,11 +180,8 @@ void JiecangDeskComponent::process_response_(const uint8_t response, const int p
       return;
 
     int height = (params[0] << 8 | params[1]);
-    if (this->prev_height_ == height)
-      return;
-
     for (auto *listener : this->height_listeners_)
-      listener->update_height(height);
+      listener->set_height(height);
     this->prev_height_ = height;
     break;
   }
@@ -193,12 +190,8 @@ void JiecangDeskComponent::process_response_(const uint8_t response, const int p
     if (params_len != 4)  // Physical limits response must have four params.
       return;
 
-    int max = (params[0] << 8 | params[1]);
-    int min = (params[2] << 8 | params[3]);
-    for (auto *listener : this->limit_listeners_) {
-      listener->update_physical_max(max);
-      listener->update_physical_min(min);
-    }
+    for (auto *listener : this->limit_listeners_)
+      listener->set_physical_limits(params[0] << 8 | params[1], params[2] << 8 | params[3]);
     break;
   }
 
@@ -208,7 +201,7 @@ void JiecangDeskComponent::process_response_(const uint8_t response, const int p
 
     int max = (params[0] << 8 | params[1]);
     for (auto *listener : this->limit_listeners_)
-      listener->update_configured_max(max);
+      listener->set_configured_max(max);
     break;
   }
 
@@ -218,7 +211,7 @@ void JiecangDeskComponent::process_response_(const uint8_t response, const int p
 
     int min = (params[0] << 8 | params[1]);
     for (auto *listener : this->limit_listeners_)
-      listener->update_configured_min(min);
+      listener->set_configured_min(min);
     break;
   }
 

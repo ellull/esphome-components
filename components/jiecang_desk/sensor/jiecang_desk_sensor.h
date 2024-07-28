@@ -10,9 +10,10 @@ namespace jiecang_desk {
 class JiecangDeskHeightSensor : public sensor::Sensor, public Component, public JiecangDeskHeightListener {
  public:
    void dump_config() override;
-   void update_height(const int height);
+   void set_height(const int height);
    
  protected:
+   int height_;
 };
 
 }  // namespace jiecang_desk

@@ -12,22 +12,27 @@ class JiecangDeskCover : public cover::Cover, public Component, public JiecangDe
   void dump_config() override;
   void setup() override;
   cover::CoverTraits get_traits() override;
-  void update_height(const int height);
-  void update_physical_max(const int height) { this->physical_max_ = height; }
-  void update_physical_min(const int height) { this->physical_min_ = height; }
-  void update_configured_max(const int height) { this->configured_max_ = height; }
-  void update_configured_min(const int height) { this->configured_min_ = height; }
+
+  void set_height(const int value) { this->height_ = value; this->update_state(); }
+  void set_physical_limits(const int max, const int min) { this->physical_max_ = max; this->physical_min_ = min; this->update_state(); }
+  void set_configured_max(const int value) { this->configured_max_ = value; this->update_state(); }
+  void set_configured_min(const int value) { this->configured_min_ = value; this->update_state(); }
   void set_parent(JiecangDeskComponent *parent) { this->parent_ = parent; }
    
  protected:
   void control(const cover::CoverCall &call) override;
+  void update_state();
   JiecangDeskComponent *parent_{nullptr};
 
  private:
-  int physical_max_;
-  int physical_min_;
-  int configured_max_;
-  int configured_min_;
+  int height_;
+  optional<int> physical_max_;
+  optional<int> physical_min_;
+  optional<int> configured_max_;
+  optional<int> configured_min_;
+
+  optional<int> get_limit_max() { return this->configured_max_.has_value() ? this->configured_max_ : this->physical_max_; }
+  optional<int> get_limit_min() { return this->configured_min_.has_value() ? this->configured_min_ : this->physical_min_; }
 };
 
 }  // namespace jiecang_desk

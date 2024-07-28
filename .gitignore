@@ -136,3 +136,6 @@ sdkconfig.*
 !sdkconfig.defaults
 
 .tests/
+
+# secrets
+secrets.yaml

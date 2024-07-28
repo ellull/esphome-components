@@ -16,26 +16,30 @@ CONF_POSITION_4 = "position_4"
 
 JiecangDeskCommandButton = jiecang_desk_ns.class_("JiecangDeskCommandButton", button.Button, cg.Component)
 
-CONFIG_SCHEMA = JIECANG_DESK_COMPONENT_SCHEMA.extend(
-    {
-        cv.Optional(CONF_POSITION_1): button.button_schema(
-            JiecangDeskCommandButton,
-            icon="mdi:numeric-1-box",
-        ),
-        cv.Optional(CONF_POSITION_2): button.button_schema(
-            JiecangDeskCommandButton,
-            icon="mdi:numeric-2-box",
-        ),
-        cv.Optional(CONF_POSITION_3): button.button_schema(
-            JiecangDeskCommandButton,
-            icon="mdi:numeric-3-box",
-        ),
-        cv.Optional(CONF_POSITION_4): button.button_schema(
-            JiecangDeskCommandButton,
-            icon="mdi:numeric-4-box",
-        ),
-    }
-).extend(cv.COMPONENT_SCHEMA)
+CONFIG_SCHEMA = (
+    JIECANG_DESK_COMPONENT_SCHEMA
+    .extend(
+        {
+            cv.Optional(CONF_POSITION_1): button.button_schema(
+                JiecangDeskCommandButton,
+                icon="mdi:numeric-1-box",
+            ),
+            cv.Optional(CONF_POSITION_2): button.button_schema(
+                JiecangDeskCommandButton,
+                icon="mdi:numeric-2-box",
+            ),
+            cv.Optional(CONF_POSITION_3): button.button_schema(
+                JiecangDeskCommandButton,
+                icon="mdi:numeric-3-box",
+            ),
+            cv.Optional(CONF_POSITION_4): button.button_schema(
+                JiecangDeskCommandButton,
+                icon="mdi:numeric-4-box",
+            ),
+        }
+    )
+    .extend(cv.COMPONENT_SCHEMA)
+)
 
 async def to_code(config):
     parent = await cg.get_variable(config[CONF_JIECANG_DESK_ID])
