@@ -28,7 +28,7 @@ CONFIG_SCHEMA = (
 
 async def to_code(config):
     parent = await cg.get_variable(config[CONF_JIECANG_DESK_ID])
-    var = await number.new_number(config, min_value=0, max_value=0, step=0.1)
+    var = await number.new_number(config, min_value=float('nan'), max_value=float('nan'), step=0.1)
     await cg.register_component(var, config)
 
     cg.add(var.set_parent(parent))
