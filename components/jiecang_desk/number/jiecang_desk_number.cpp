@@ -22,7 +22,7 @@ void JiecangDeskNumber::dump_config() {
 }
 
 void JiecangDeskNumber::control(const float value) {
-  //this->parent_->move_to(value * 10);
+  this->parent_->move_to(value * 10);
 }
 
 void JiecangDeskNumber::update_state() {
