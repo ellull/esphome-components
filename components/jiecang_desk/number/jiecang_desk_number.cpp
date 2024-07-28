@@ -5,7 +5,21 @@ namespace jiecang_desk {
 
 static const char *const TAG = "jiecang_desk.number";
 
-void JiecangDeskNumber::dump_config() { LOG_NUMBER("", "Jiecang Desk Number", this); }
+void JiecangDeskNumber::dump_config() {
+  LOG_NUMBER("", "Jiecang Desk Number", this);
+
+  if (this->physical_max_.has_value())
+    ESP_LOGCONFIG(TAG, "  Physical max: %d", *this->physical_max_);
+
+  if (this->physical_min_.has_value())
+    ESP_LOGCONFIG(TAG, "  Physical min: %d", *this->physical_min_);
+
+  if (this->configured_max_.has_value())
+    ESP_LOGCONFIG(TAG, "  Configured max: %d", *this->configured_max_);
+
+  if (this->configured_min_.has_value())
+    ESP_LOGCONFIG(TAG, "  Configured min: %d", *this->configured_min_);
+}
 
 void JiecangDeskNumber::control(const float value) {
   this->parent_->move_to(value * 10);
