@@ -20,6 +20,7 @@ CONFIG_SCHEMA = (
     .extend(
         number.number_schema(
             JiecangDeskNumber,
+            icon="mdi:desk",
             device_class=DEVICE_CLASS_DISTANCE,
         )
     )
