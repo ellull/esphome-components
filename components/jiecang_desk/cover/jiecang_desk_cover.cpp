@@ -21,19 +21,12 @@ void JiecangDeskCover::dump_config() {
     ESP_LOGCONFIG(TAG, "  Configured min: %d", *this->configured_min_);
 }
 
-void JiecangDeskCover::setup() {
-  ESP_LOGCONFIG(TAG, "Initializing cover");
-  this->position = nanf("");
-  this->parent_->send_command(COMMAND_PHYSICAL_LIMITS);
-  this->parent_->send_command(COMMAND_LIMITS);
-}
+void JiecangDeskCover::setup() { this->position = NAN; }
 
 cover::CoverTraits JiecangDeskCover::get_traits() {
   auto traits = cover::CoverTraits();
   traits.set_supports_stop(true);
   traits.set_supports_position(true);
-  traits.set_supports_toggle(false);
-  traits.set_is_assumed_state(false);
   return traits;
 }
 
@@ -52,10 +45,7 @@ void JiecangDeskCover::control(const cover::CoverCall &call) {
       return;
     }
 
-    int target_height = (target_position * (*max - *min)) + *min;
-
-    uint8_t bytes[2] = { (uint8_t)(target_height >> 8), (uint8_t)(target_height & 0xFF) };
-    this->parent_->send_command(COMMAND_SET_HEIGHT, sizeof(bytes), bytes);
+    this->parent_->move_to((target_position * (*max - *min)) + *min);
   }
 }
 

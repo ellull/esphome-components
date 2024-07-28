@@ -7,12 +7,11 @@ static const char *const TAG = "jiecang_desk.sensor";
 
 void JiecangDeskHeightSensor::dump_config() { LOG_SENSOR("", "Jiecang Desk Sensor", this); }
 
-void JiecangDeskHeightSensor::set_height(const int height) {
-    if (height == this->height_)
-        return;
+void JiecangDeskHeightSensor::update_state() {
+  float new_state = (float)this->height_ * 0.1F;
 
-    this->height_ = height;
-    this->publish_state((float)height * 0.1);
+  if (this->state != new_state)
+    this->publish_state(new_state);
 }
 
 }  // namespace jiecang_desk
