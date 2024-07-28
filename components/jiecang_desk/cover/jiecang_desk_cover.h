@@ -17,6 +17,7 @@ class JiecangDeskCover : public cover::Cover, public Component, public JiecangDe
    
  protected:
   void control(const cover::CoverCall &call) override;
+  
   void update_state() override;
   
   JiecangDeskComponent *parent_{nullptr};
