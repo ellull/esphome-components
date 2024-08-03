@@ -9,7 +9,7 @@ CONF_JIECANG_DESK_ID = "jiecang_desk_id"
 
 jiecang_desk_ns = cg.esphome_ns.namespace("jiecang_desk")
 
-JiecangDeskComponent = jiecang_desk_ns.class_("JiecangDeskComponent", cg.Component, uart.UARTDevice)
+JiecangDeskComponent = jiecang_desk_ns.class_("JiecangDeskComponent", cg.PollingComponent, uart.UARTDevice)
 
 JIECANG_DESK_COMPONENT_SCHEMA = cv.Schema(
     {
@@ -24,7 +24,7 @@ CONFIG_SCHEMA = cv.All(
         }
     )
     .extend(uart.UART_DEVICE_SCHEMA)
-    .extend(cv.COMPONENT_SCHEMA)
+    .extend(cv.polling_component_schema("1min"))
 )
 FINAL_VALIDATE_SCHEMA = uart.final_validate_device_schema(
     "jiecang_desk",

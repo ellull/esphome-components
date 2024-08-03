@@ -137,5 +137,6 @@ sdkconfig.*
 
 .tests/
 
-# secrets
+# secrets & test yamls
 secrets.yaml
+office-desk.yaml
