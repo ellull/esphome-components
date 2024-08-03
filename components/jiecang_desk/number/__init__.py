@@ -20,6 +20,7 @@ CONFIG_SCHEMA = (
     .extend(
         number.number_schema(
             JiecangDeskNumber,
+            icon="mdi:desk",
             device_class=DEVICE_CLASS_DISTANCE,
         )
     )
@@ -32,5 +33,4 @@ async def to_code(config):
     await cg.register_component(var, config)
 
     cg.add(var.set_parent(parent))
-    cg.add(parent.add_height_listener(var))
-    cg.add(parent.add_limits_listener(var))
+    cg.add(parent.add_listener(var))

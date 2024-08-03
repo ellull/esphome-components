@@ -7,36 +7,38 @@ static const char *const TAG = "jiecang_desk.number";
 
 void JiecangDeskNumber::dump_config() {
   LOG_NUMBER("", "Jiecang Desk Number", this);
+  auto limits = this->parent_->get_limits();
 
-  if (this->physical_max_.has_value())
-    ESP_LOGCONFIG(TAG, "  Physical max: %d", *this->physical_max_);
+  optional<int> max_limit = std::get<0>(limits);
+  if (max_limit.has_value()) {
+    ESP_LOGCONFIG(TAG, "  Max limit: %d", *max_limit);
+  }
 
-  if (this->physical_min_.has_value())
-    ESP_LOGCONFIG(TAG, "  Physical min: %d", *this->physical_min_);
-
-  if (this->configured_max_.has_value())
-    ESP_LOGCONFIG(TAG, "  Configured max: %d", *this->configured_max_);
-
-  if (this->configured_min_.has_value())
-    ESP_LOGCONFIG(TAG, "  Configured min: %d", *this->configured_min_);
+  optional<int> min_limit = std::get<1>(limits);
+  if (min_limit.has_value()) {
+    ESP_LOGCONFIG(TAG, "  Min limit: %d", *min_limit);
+  }
 }
 
 void JiecangDeskNumber::control(const float value) {
-  this->parent_->move_to(value * 10);
+  this->parent_->move_to(round(value * 10));
 }
 
-void JiecangDeskNumber::update_state() {
-  optional<int> max = this->get_limit_max();
-  if (max.has_value())
-    this->traits.set_max_value(*max * 0.1F);
+void JiecangDeskNumber::on_height_update(const optional<int> height) {
+  float new_height = height.has_value() ? *height * 0.1f : NAN;
+  this->publish_state(new_height);
+}
 
-  optional<int> min = this->get_limit_min();
-  if (min.has_value())
-    this->traits.set_min_value(*min * 0.1F);
+void JiecangDeskNumber::on_limits_update(const std::tuple<optional<int>, optional<int>> limits) {
+    optional<int> max_limit = std::get<0>(limits);
+    float new_max = max_limit.has_value() ? *max_limit * 0.1f : NAN;
+    ESP_LOGD(TAG, "Setting max value to %.1f", new_max);
+    this->traits.set_max_value(new_max);
 
-  float new_state = this->height_ * 0.1F;
-  if (this->state != new_state)
-    this->publish_state(new_state);
+    optional<int> min_limit = std::get<1>(limits);
+    float new_min = min_limit.has_value() ? *min_limit * 0.1f : NAN;
+    ESP_LOGD(TAG, "Setting min value to %.1f", new_min);
+    this->traits.set_min_value(new_min);
 }
 
 }  // namespace jiecang_desk

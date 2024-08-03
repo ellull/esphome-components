@@ -7,12 +7,10 @@
 namespace esphome {
 namespace jiecang_desk {
 
-class JiecangDeskHeightSensor : public sensor::Sensor, public Component, public JiecangDeskHeightListener {
+class JiecangDeskHeightSensor : public sensor::Sensor, public Component, public JiecangDeskListener {
  public:
    void dump_config() override;
-   
-protected:
-   void update_state() override;
+   void on_height_update(const optional<int> height) override;
 };
 
 }  // namespace jiecang_desk

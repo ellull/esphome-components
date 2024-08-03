@@ -35,4 +35,4 @@ async def to_code(config):
     var = await sensor.new_sensor(config)
     await cg.register_component(var, config)
 
-    cg.add(parent.add_height_listener(var))
+    cg.add(parent.add_listener(var))
