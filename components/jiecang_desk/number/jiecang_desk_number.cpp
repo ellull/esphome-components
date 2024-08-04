@@ -1,3 +1,4 @@
+#include "esphome/core/application.h"
 #include "jiecang_desk_number.h"
 
 namespace esphome {
@@ -30,6 +31,12 @@ void JiecangDeskNumber::on_height_update(const optional<int> height) {
 }
 
 void JiecangDeskNumber::on_limits_update(const std::tuple<optional<int>, optional<int>> limits) {
+    if (this->reboot_on_limits_change_ && this->configured_) {
+      ESP_LOGW(TAG, "Limits have changed. Rebooting so Home Assistant reconfigures the number component.");
+      delay(100);  // NOLINT
+      App.safe_reboot();
+    }
+
     optional<int> max_limit = std::get<0>(limits);
     float new_max = max_limit.has_value() ? *max_limit * 0.1f : NAN;
     ESP_LOGD(TAG, "Setting max value to %.1f", new_max);
@@ -39,6 +46,8 @@ void JiecangDeskNumber::on_limits_update(const std::tuple<optional<int>, optiona
     float new_min = min_limit.has_value() ? *min_limit * 0.1f : NAN;
     ESP_LOGD(TAG, "Setting min value to %.1f", new_min);
     this->traits.set_min_value(new_min);
+
+    this->configured_ = this->parent_->is_configured();
 }
 
 }  // namespace jiecang_desk

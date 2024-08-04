@@ -13,6 +13,8 @@ from .. import (
 
 DEPENDENCIES = ["jiecang_desk"]
 
+CONF_REBOOT_ON_LIMITS_CHANGE = "reboot_on_limits_change"
+
 JiecangDeskNumber = jiecang_desk_ns.class_("JiecangDeskNumber", number.Number, cg.Component)
 
 CONFIG_SCHEMA = (
@@ -24,6 +26,11 @@ CONFIG_SCHEMA = (
             device_class=DEVICE_CLASS_DISTANCE,
         )
     )
+    .extend(
+        {
+            cv.Optional(CONF_REBOOT_ON_LIMITS_CHANGE, default=False): cv.boolean,
+        }
+    )
     .extend(cv.COMPONENT_SCHEMA)
 )
 
@@ -33,4 +40,5 @@ async def to_code(config):
     await cg.register_component(var, config)
 
     cg.add(var.set_parent(parent))
+    cg.add(var.set_reboot_on_limits_change(config[CONF_REBOOT_ON_LIMITS_CHANGE]))
     cg.add(parent.add_listener(var))
