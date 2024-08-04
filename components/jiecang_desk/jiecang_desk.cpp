@@ -221,6 +221,7 @@ void JiecangDeskComponent::process_response_(const uint8_t response, const int p
     if ((limits_flags & MASK_MIN_LIMIT) == 0) {
       this->set_configured_min_(nullopt);
     }
+    break;
   }
 
   case RESPONSE_MAX_LIMIT: {
