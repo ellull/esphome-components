@@ -57,6 +57,8 @@ void JiecangDeskComponent::dump_config() {
 }
 
 void JiecangDeskComponent::setup() {
+  this->status_set_warning("waiting for configuration");
+
   // Request settings and physical limits (which will trigger request of configured limits).
   this->send_command_(COMMAND_SETTINGS);
   this->update();
@@ -210,13 +212,13 @@ void JiecangDeskComponent::process_response_(const uint8_t response, const int p
   }
 
   case RESPONSE_LIMITS: {
-    uint8_t limits_status = params_len == 0 ? 0 : params[0];
+    uint8_t limits_flags = params[0];
 
-    if ((limits_status & MASK_MAX_LIMIT) == 0) {
+    if ((limits_flags & MASK_MAX_LIMIT) == 0) {
       this->set_configured_max_(nullopt);
     }
 
-    if ((limits_status & MASK_MIN_LIMIT) == 0) {
+    if ((limits_flags & MASK_MIN_LIMIT) == 0) {
       this->set_configured_min_(nullopt);
     }
   }
@@ -302,6 +304,7 @@ void JiecangDeskComponent::set_configured_max_(const optional<int> value) {
     ESP_LOGD(TAG, "Setting configured max limit to %d", value);
     this->configured_max_ = value;
   }
+  this->has_configured_max_ = value.has_value();
 
   this->notify_limits_update_(prev_limits);
 }
@@ -313,6 +316,7 @@ void JiecangDeskComponent::set_configured_min_(const optional<int> value) {
     ESP_LOGD(TAG, "Setting configured min limit to %d", value);
     this->configured_min_ = value;
   }
+  this->has_configured_min_ = value.has_value();
 
   this->notify_limits_update_(prev_limits);
 }
@@ -324,6 +328,10 @@ void JiecangDeskComponent::notify_height_update_(const optional<int> prev_height
       listener->on_height_update(curr_height);
     }
   }
+
+  if (this->is_configured()) {
+    this->status_clear_warning();
+  }
 }
 
 void JiecangDeskComponent::notify_limits_update_(const std::tuple<optional<int>, optional<int>> prev_limits) {
@@ -332,6 +340,10 @@ void JiecangDeskComponent::notify_limits_update_(const std::tuple<optional<int>,
     for (auto *listener : this->listeners_) {
       listener->on_limits_update(curr_limits);
     }
+  }
+
+  if (this->is_configured()) {
+    this->status_clear_warning();
   }
 }
 

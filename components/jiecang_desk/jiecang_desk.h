@@ -43,6 +43,13 @@ class JiecangDeskComponent : public PollingComponent, public uart::UARTDevice {
   void send_command(const JiecangDeskCommand command);
   void move_to(const int height);
 
+  bool is_configured() {
+    return this->height_.has_value() 
+        && this->physical_max_.has_value()
+        && this->physical_min_.has_value()
+        && (!this->has_configured_max_ || this->configured_max_.has_value())
+        && (!this->has_configured_min_ || this->configured_min_.has_value());
+  }
   optional<int> get_height() { return this->height_; }
   std::tuple<optional<int>, optional<int>> get_limits() {
     return {
@@ -57,6 +64,9 @@ class JiecangDeskComponent : public PollingComponent, public uart::UARTDevice {
   optional<int> height_;
   optional<int> physical_max_;
   optional<int> physical_min_;
+
+  bool has_configured_max_{true};
+  bool has_configured_min_{true};
   optional<int> configured_max_;
   optional<int> configured_min_;
   std::vector<JiecangDeskListener *> listeners_;
