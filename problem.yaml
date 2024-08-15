@@ -1,0 +1,16 @@
+esphome:
+  friendly_name: Problem Binary Sensor
+  name: problem-binary-sensor
+
+esp32:
+  board: esp32dev
+    
+logger:
+
+external_components:
+  - source: components
+    components: [ problem ]
+
+binary_sensor:
+  - platform: problem
+    name: Problem
