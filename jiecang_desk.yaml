@@ -1,0 +1,79 @@
+esphome:
+  friendly_name: Jiecang Desk
+  name: jiecang-desk
+
+esp32:
+  board: esp32dev
+    
+logger:
+
+external_components:
+  - source: components
+    components: [ jiecang_desk ]
+
+uart:
+  - baud_rate: 9600
+    data_bits: 8
+    parity: NONE
+    stop_bits: 1
+    tx_pin: 18
+    rx_pin: 19
+
+jiecang_desk:
+  # How often the desk limits are updated.
+  update_interval: 1min 
+
+sensor:
+  - platform: jiecang_desk
+    # Current desk height sensor.
+    height:
+      name: Height
+      unit_of_measurement: cm
+    # Maximum desk height (physical or configured) sensor.
+    max_limit:
+      name: Maximum Height
+      unit_of_measurement: cm
+    # Minimum desk height (physical or configured) sensor.
+    min_limit:
+      name: Minimum Height
+      unit_of_measurement: cm
+
+button:
+  - platform: jiecang_desk
+    # Go to position 1 button.
+    position_1:
+      name: Position 1
+    # Go to position 2 button.
+    position_2:
+      name: Position 2
+    # Go to position 3 button.
+    position_3:
+      name: Position 3
+    # Go to position 4 button.
+    position_4:
+      name: Position 4
+    # Move the desk up button.
+    up:
+      name: Up
+    # Move the desk down button.
+    down:
+      name: Down
+    # Stop the desk button.
+    stop:
+      name: Stop
+
+cover:
+  # Cover to control the desk position.
+  - platform: jiecang_desk
+    name: Cover
+
+number:
+  # Number to control the desk position.
+  - platform: jiecang_desk
+    name: Number
+    unit_of_measurement: cm
+    # Set this to true if you want to reboot the ESPHome device when the limits
+    # are changed.
+    # This is a workaround for Home Assistant to refresh the number min and max
+    # limits which are only read uppon connection.
+    reboot_on_limits_change: true
