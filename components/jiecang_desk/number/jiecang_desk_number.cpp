@@ -27,7 +27,11 @@ void JiecangDeskNumber::control(const float value) {
 
 void JiecangDeskNumber::on_height_update(const optional<int> height) {
   float new_height = height.has_value() ? *height * 0.1f : NAN;
-  this->set_timeout("jicangdek_number_debounce", 250, [this, new_height]() { this->publish_state(new_height); });
+  if (this->debounce_time_ == 0) {
+    this->publish_state(new_height);
+  } else { 
+    this->set_timeout("jicangdek_number_debounce", this->debounce_time_, [this, new_height]() { this->publish_state(new_height); });
+  }
 }
 
 void JiecangDeskNumber::on_limits_update(const std::tuple<optional<int>, optional<int>> limits) {

@@ -14,6 +14,7 @@ from .. import (
 DEPENDENCIES = ["jiecang_desk"]
 
 CONF_REBOOT_ON_LIMITS_CHANGE = "reboot_on_limits_change"
+CONF_DEBOUNCE_TIME = "debounce_time"
 
 JiecangDeskNumber = jiecang_desk_ns.class_("JiecangDeskNumber", number.Number, cg.Component)
 
@@ -29,6 +30,7 @@ CONFIG_SCHEMA = (
     .extend(
         {
             cv.Optional(CONF_REBOOT_ON_LIMITS_CHANGE, default=False): cv.boolean,
+            cv.Optional(CONF_DEBOUNCE_TIME, default="250ms"): cv.positive_time_period_milliseconds,
         }
     )
     .extend(cv.COMPONENT_SCHEMA)
@@ -41,4 +43,5 @@ async def to_code(config):
 
     cg.add(var.set_parent(parent))
     cg.add(var.set_reboot_on_limits_change(config[CONF_REBOOT_ON_LIMITS_CHANGE]))
+    cg.add(var.set_debounce_time(config[CONF_DEBOUNCE_TIME]))
     cg.add(parent.add_listener(var))
