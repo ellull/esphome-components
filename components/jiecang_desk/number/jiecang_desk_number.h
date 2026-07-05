@@ -15,6 +15,7 @@ class JiecangDeskNumber : public number::Number, public Component, public Jiecan
   void on_height_update(const optional<int> height) override;
   void on_limits_update(const std::tuple<optional<int>, optional<int>> limits) override;
   void set_reboot_on_limits_change(const bool value) { this->reboot_on_limits_change_ = value; }
+  void set_debounce_time(const uint32_t duration) { this->debounce_time_ = duration; }
 
  protected:
   void control(const float value) override;
@@ -24,6 +25,7 @@ class JiecangDeskNumber : public number::Number, public Component, public Jiecan
  private:
   bool configured_{false};
   bool reboot_on_limits_change_{false};
+  uint32_t debounce_time_{0};
 };
 
 }  // namespace jiecang_desk
