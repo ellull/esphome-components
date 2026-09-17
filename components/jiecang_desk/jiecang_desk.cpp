@@ -302,7 +302,7 @@ void JiecangDeskComponent::set_configured_max_(const optional<int> value) {
   auto prev_limits = this->get_limits();
 
   if (this->configured_max_ != value) {
-    ESP_LOGD(TAG, "Setting configured max limit to %d", value.value_or(-1);
+    ESP_LOGD(TAG, "Setting configured max limit to %d", value.value_or(-1));
     this->configured_max_ = value;
   }
   this->has_configured_max_ = value.has_value();
