@@ -53,7 +53,6 @@ std::string uint8_to_hex_string(const uint8_t *v, const int s) {
 void JiecangDeskComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "Jiecang Desk component:");
   LOG_UPDATE_INTERVAL(this);
-  this->check_uart_settings(9600, 1, esphome::uart::UART_CONFIG_PARITY_NONE, 8);
 }
 
 void JiecangDeskComponent::setup() {
